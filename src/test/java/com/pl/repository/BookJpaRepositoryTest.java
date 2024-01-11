@@ -34,4 +34,22 @@ class BookJpaRepositoryTest {
         assertThat(foundBooks).hasSize(2);
     }
 
+    @Test
+    @Sql("clean-db.sql")
+    public void should_return_list_of_books_entity_with_given_author() {
+        BookEntity book1 = CreateDataToTests.createBookEntity("isbn:1");
+        BookEntity book2 = CreateDataToTests.createBookEntity("isbn:2");
+        BookEntity book3 = CreateDataToTests.createBookEntity("isbn:3");
+        book3.setAuthor("Alan");
+
+        bookJpaRepository.save(book1);
+        bookJpaRepository.save(book2);
+        bookJpaRepository.save(book3);
+
+        List<BookEntity> books = bookJpaRepository.findBooksByAuthor("Steve Mann");
+
+        assertThat(books).hasSize(2);
+        assertThat(books.get(1).getAuthor()).isEqualTo("Steve Mann");
+    }
+
 }

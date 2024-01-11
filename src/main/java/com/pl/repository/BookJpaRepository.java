@@ -13,5 +13,12 @@ interface BookJpaRepository extends CrudRepository<BookEntity, Integer> {
             , nativeQuery = true)
     List<BookEntity> findAllBook(Integer libraryId);
 
+    @Query(value = "SELECT * FROM  books b WHERE  b.author=:author"
+            , nativeQuery = true)
+    List<BookEntity> findBooksByAuthor(String author);
+
+    @Query(value = "SELECT * FROM  books b WHERE  b.title=:title"
+            , nativeQuery = true)
+    List<BookEntity> findBooksByTitle(String title);
 
 }

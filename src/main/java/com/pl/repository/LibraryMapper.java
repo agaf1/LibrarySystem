@@ -30,6 +30,7 @@ interface LibraryMapper {
         return Optional.of(library);
     }
 
+
     LibraryEntity map(Library library);
 
     Library map(LibraryEntity library);

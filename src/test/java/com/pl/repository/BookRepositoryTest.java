@@ -35,4 +35,23 @@ class BookRepositoryTest {
         assertThat(booksFromLibrary).hasSize(3);
     }
 
+    @Test
+    @Sql("clean-db.sql")
+    public void should_find_all_books_with_given_author() {
+        Library library = CreateDataToTests.createLibrary();
+        Book book1 = CreateDataToTests.createBook("isbn:1");
+        Book book2 = CreateDataToTests.createBook("isbn:2");
+        Book book3 = CreateDataToTests.createBook("isbn:3");
+        book3.setAuthor("Alan");
+        List<Book> books = List.of(book1, book2, book3);
+        library.setBooks(books);
+        LibraryEntity savedLibrary = libraryRepository.save(library);
+
+        List<Book> booksWithGivenAuthor = bookRepository.findBooksByAuthor(book1.getAuthor());
+
+        assertThat(booksWithGivenAuthor).hasSize(2);
+        assertThat(booksWithGivenAuthor.get(1).getAuthor()).isEqualTo(book1.getAuthor());
+        assertThat(booksWithGivenAuthor.get(1).getLibrary().getId()).isEqualTo(savedLibrary.getId());
+    }
+
 }
