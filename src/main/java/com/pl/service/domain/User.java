@@ -1,6 +1,5 @@
 package com.pl.service.domain;
 
-
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -11,14 +10,13 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-public class Library {
+public class User {
 
     private Integer id;
-    private Integer number;
-    private String address;
+    private String firstName;
+    private String lastName;
+    private String email;
 
-    List<Book> books = new ArrayList<>();
+    List<Book> borrowedBooks = new ArrayList<>();
 
 }
-
-
