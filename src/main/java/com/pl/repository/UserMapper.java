@@ -18,4 +18,5 @@ public interface UserMapper {
     BookEntity map(Book book);
 
     Book map(BookEntity bookEntity);
+
 }

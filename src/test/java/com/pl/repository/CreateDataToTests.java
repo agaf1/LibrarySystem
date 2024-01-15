@@ -36,6 +36,16 @@ public class CreateDataToTests {
         return library1;
     }
 
+    static Library createLibraryWithBooks(String... isbn) {
+        Library library = createLibrary();
+        for (String bookIsbn : isbn) {
+            Book book = createBook(bookIsbn);
+            book.setLibrary(library);
+            library.getBooks().add(book);
+        }
+        return library;
+    }
+
     static User createUser() {
         User user = new User();
         user.setFirstName("Ala");

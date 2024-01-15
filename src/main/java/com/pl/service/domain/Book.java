@@ -15,10 +15,11 @@ public class Book {
 
     private String isbn;
     private String author;
+    
     private String title;
 
     private Library library;
-    private User userWhoBorrowed;
+    private User user;
     private LocalDate borrowingDate;
 
 }

@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -16,11 +17,13 @@ public class LibraryRepository {
     private final LibraryJpaRepository libraryJpaRepository;
     private final LibraryMapper libraryMapper;
     private final BookRepository bookRepository;
+    private final UserBookRepository userBookRepository;
 
 
     @Transactional
-    public LibraryEntity save(Library library) {
-        return libraryJpaRepository.save(libraryMapper.mapToEntity(library));
+    public Library save(Library library) {
+        return libraryMapper.mapFromEntity(Optional.of
+                (libraryJpaRepository.save(libraryMapper.mapToEntity(library)))).get();
     }
 
     @Transactional(readOnly = true)
@@ -42,20 +45,15 @@ public class LibraryRepository {
 
     @Transactional
     public List<Book> findAllBooks(Integer libraryId) {
-        List<Book> books = new ArrayList<>();
-        List<BookEntity> foundBooks = bookRepository.findAllBooks(libraryId);
-        for (BookEntity book : foundBooks) {
-            books.add(libraryMapper.map(book));
-        }
-        return books;
+        return bookRepository.findAllBooks(libraryId);
     }
 
     @Transactional
     public void addBook(Integer libraryId, Integer bookId) {
         Optional<LibraryEntity> libraryEntity = libraryJpaRepository.findById(libraryId);
-        Optional<BookEntity> bookEntity = bookRepository.findById(bookId);
-        if (bookEntity.isPresent()) {
-            libraryEntity.get().addBook(bookEntity.get());
+        Optional<Book> book = bookRepository.findById(bookId);
+        if (book.isPresent()) {
+            libraryEntity.get().addBook(libraryMapper.map(book.get()));
             libraryJpaRepository.save(libraryEntity.get());
         }
     }
@@ -63,6 +61,18 @@ public class LibraryRepository {
     @Transactional
     public boolean deleteBook(Integer libraryId, Integer bookId) {
         return libraryJpaRepository.deleteBook(libraryId, bookId);
+    }
+
+    @Transactional
+    public List<Book> findBooksByAlertDate(LocalDate alertDate) {
+        List<UserBookEntity> userBookEntities = userBookRepository.findByAlertDate(alertDate);
+        List<Book> booksWithAlertDate = new ArrayList<>();
+
+        for (UserBookEntity userBookEntity : userBookEntities) {
+            Book book = libraryMapper.map(userBookEntity.getBook());
+            booksWithAlertDate.add(book);
+        }
+        return booksWithAlertDate;
     }
 
 

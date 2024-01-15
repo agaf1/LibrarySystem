@@ -22,35 +22,35 @@ class BookRepositoryTest {
     @Test
     @Sql("clean-db.sql")
     public void should_find_all_books_from_given_library() {
-        Library library = CreateDataToTests.createLibrary();
-        Book book1 = CreateDataToTests.createBook("isbn:1");
-        Book book2 = CreateDataToTests.createBook("isbn:2");
-        Book book3 = CreateDataToTests.createBook("isbn:3");
-        List<Book> books = List.of(book1, book2, book3);
-        library.setBooks(books);
-        LibraryEntity savedLibrary = libraryRepository.save(library);
+        //given
+        Library library = CreateDataToTests.createLibraryWithBooks("isbn:1", "isbn:2", "isbn:3");
+        Library savedLibrary = libraryRepository.save(library);
 
-        List<BookEntity> booksFromLibrary = bookRepository.findAllBooks(savedLibrary.getId());
+        //when
+        List<Book> booksFromLibrary = bookRepository.findAllBooks(savedLibrary.getId());
 
+        //then
         assertThat(booksFromLibrary).hasSize(3);
     }
 
     @Test
     @Sql("clean-db.sql")
     public void should_find_all_books_with_given_author() {
-        Library library = CreateDataToTests.createLibrary();
-        Book book1 = CreateDataToTests.createBook("isbn:1");
-        Book book2 = CreateDataToTests.createBook("isbn:2");
+        //given
+        Library library = CreateDataToTests.createLibraryWithBooks("isbn:1", "isbn:2");
         Book book3 = CreateDataToTests.createBook("isbn:3");
-        book3.setAuthor("Alan");
-        List<Book> books = List.of(book1, book2, book3);
-        library.setBooks(books);
-        LibraryEntity savedLibrary = libraryRepository.save(library);
+        book3.setAuthor("author");
+        library.getBooks().add(book3);
+        Library savedLibrary = libraryRepository.save(library);
 
-        List<Book> booksWithGivenAuthor = bookRepository.findBooksByAuthor(book1.getAuthor());
+        String authorOfBook1 = savedLibrary.getBooks().get(0).getAuthor();
 
+        //when
+        List<Book> booksWithGivenAuthor = bookRepository.findBooksByAuthor(authorOfBook1);
+
+        //then
         assertThat(booksWithGivenAuthor).hasSize(2);
-        assertThat(booksWithGivenAuthor.get(1).getAuthor()).isEqualTo(book1.getAuthor());
+        assertThat(booksWithGivenAuthor.get(1).getAuthor()).isEqualTo(authorOfBook1);
         assertThat(booksWithGivenAuthor.get(1).getLibrary().getId()).isEqualTo(savedLibrary.getId());
     }
 

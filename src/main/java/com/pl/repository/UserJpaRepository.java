@@ -16,19 +16,22 @@ interface UserJpaRepository extends CrudRepository<UserEntity, Integer> {
         if (userEntity.isPresent()) {
             userToSave = userEntity.get();
             userToSave.borrowBook(bookEntity);
-            save(userToSave);
+//            save(userToSave);
             return true;
         }
         return false;
     }
 
     @Transactional
-    default UserBookEntity returnBook(BookEntity bookEntity) {
-        UserEntity user = bookEntity.getUserBook().getUser();
-        if (user != null) {
-            return user.returnBook(bookEntity);
+    default boolean returnBook(BookEntity bookEntity) {
+        if (bookEntity != null) {
+            UserEntity user = bookEntity.getUserBook().getUser();
+            if (user != null) {
+                user.returnBook(bookEntity);
+                return true;
+            }
         }
-        return null;
+        return false;
     }
 
 }

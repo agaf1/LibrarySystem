@@ -1,5 +1,6 @@
 package com.pl.repository;
 
+import com.pl.service.domain.Book;
 import com.pl.service.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -17,8 +18,10 @@ public class UserRepository {
     private final UserBookJpaRepository userBookJpaRepository;
 
     @Transactional
-    public UserEntity save(User user) {
-        return userJpaRepository.save(userMapper.map(user));
+    public User save(User user) {
+        UserEntity userEntity = userJpaRepository.save(userMapper.map(user));
+        User user1 = userMapper.map(userEntity);
+        return user1;
     }
 
     @Transactional(readOnly = true)
@@ -33,9 +36,9 @@ public class UserRepository {
 
     @Transactional
     public boolean borrowBook(Integer userId, Integer bookId) {
-        Optional<BookEntity> bookEntity = bookRepository.findById(bookId);
-        if (bookEntity.isPresent()) {
-            return userJpaRepository.borrowBook(userId, bookEntity.get());
+        Optional<Book> book = bookRepository.findById(bookId);
+        if (book.isPresent()) {
+            return userJpaRepository.borrowBook(userId, userMapper.map(book.get()));
         } else {
             return false;
         }
@@ -43,11 +46,15 @@ public class UserRepository {
 
     @Transactional
     public boolean returnBook(Integer bookId) {
-        Optional<BookEntity> bookToReturn = bookRepository.findById(bookId);
-        if (bookToReturn.isPresent()) {
-            UserBookEntity userBookEntity = userJpaRepository.returnBook(bookToReturn.get());
-            userBookJpaRepository.delete(userBookEntity);
-            return true;
+//        Optional<Book> book = bookRepository.findById(bookId);
+//        BookEntity bookEntity = null;
+//        if (book.isPresent()) {
+//            bookEntity = userMapper.map(book.get());
+//        }
+//        return userJpaRepository.returnBook(bookEntity);
+        Optional<BookEntity> bookEntity = bookRepository.findEntityById(bookId);
+        if (bookEntity.isPresent()) {
+            return userJpaRepository.returnBook(bookEntity.get());
         }
         return false;
     }
