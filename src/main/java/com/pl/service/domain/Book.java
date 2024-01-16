@@ -9,13 +9,13 @@ import java.time.LocalDate;
 @Setter
 @Getter
 @NoArgsConstructor
+
 public class Book {
 
     private Integer id;
-
     private String isbn;
     private String author;
-    
+
     private String title;
 
     private Library library;
