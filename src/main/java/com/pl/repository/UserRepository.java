@@ -28,7 +28,7 @@ public class UserRepository {
     public Optional<User> findById(Integer userId) {
         Optional<UserEntity> userEntity = userJpaRepository.findById(userId);
         if (userEntity.isPresent()) {
-            return Optional.of(userMapper.map(userEntity.get()));
+            return Optional.of(userMapper.mapFromEntity(userEntity.get()));
         } else {
             return Optional.empty();
         }
