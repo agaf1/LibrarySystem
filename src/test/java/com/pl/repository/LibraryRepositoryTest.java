@@ -188,9 +188,9 @@ class LibraryRepositoryTest {
         userRepository.borrowBook(savedUser1.getId(), book2Id);
         userRepository.borrowBook(savedUser2.getId(), book3Id);
 
-        Book book2 = bookRepository.findById(book2Id).get();
-        book2.setBorrowingDate(LocalDate.now().minusDays(10));
-        bookRepository.save(book2);
+        UserBookEntity userBookEntity = userBookRepository.findById(1).get();
+        userBookEntity.setBorrowingDate(LocalDate.of(2024, 01, 10));
+        userBookRepository.save(userBookEntity);
 
         //when
         List<Book> bookWithAlertDay = libraryRepository.findBooksByAlertDate(LocalDate.now());
