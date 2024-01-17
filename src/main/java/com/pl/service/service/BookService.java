@@ -15,6 +15,11 @@ public class BookService {
     private final BookRepository bookRepository;
 
     @Transactional
+    public void createBook(Book book) {
+        bookRepository.save(book);
+    }
+
+    @Transactional
     public List<Book> findBooksByAuthor(String author) {
         return bookRepository.findBooksByAuthor(author);
     }
