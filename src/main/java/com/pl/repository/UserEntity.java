@@ -51,6 +51,7 @@ class UserEntity {
 
         userBook.setUser(null);
         userBook.setBook(null);
+        book.setUserBook(null);
         borrowedBooks.remove(book);
 
         return userBook;

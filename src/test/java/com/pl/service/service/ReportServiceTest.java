@@ -23,19 +23,19 @@ class ReportServiceTest {
 
 
     @Test
-    public void should_return_list_of_books_with_alert_date() {
+    public void should_return_list_of_books_with_alert_date_when_alert_days_are_5() {
         //given
+        Integer alertDay = 5;
+        LocalDate alertDate = LocalDate.now().plusDays(alertDay).minusMonths(1);
         Book book1 = new Book();
-        book1.setBorrowingDate(LocalDate.of(2023, 12, 21));
+        book1.setBorrowingDate(alertDate);
         Book book2 = new Book();
-        book2.setBorrowingDate(LocalDate.of(2023, 12, 21));
+        book2.setBorrowingDate(alertDate);
         Book book3 = new Book();
-        book3.setBorrowingDate(LocalDate.of(2024, 01, 10));
+        book3.setBorrowingDate(LocalDate.now());
 
         List<Book> books = List.of(book1, book2, book3);
         List<Book> booksWithAlertDate = List.of(book1, book2);
-
-        LocalDate alertDate = LocalDate.of(2023, 12, 21);
 
         Mockito.when(libraryRepository.findBooksByAlertDate(Mockito.eq(alertDate))).thenReturn(booksWithAlertDate);
 

@@ -25,9 +25,9 @@ interface UserJpaRepository extends CrudRepository<UserEntity, Integer> {
     @Transactional
     default boolean returnBook(BookEntity bookEntity) {
         if (bookEntity != null) {
-            UserEntity user = bookEntity.getUserBook().getUser();
-            if (user != null) {
-                user.returnBook(bookEntity);
+            var userBook = bookEntity.getUserBook();
+            if (userBook != null) {
+                userBook.getUser().returnBook(userBook.getBook());
                 return true;
             }
         }

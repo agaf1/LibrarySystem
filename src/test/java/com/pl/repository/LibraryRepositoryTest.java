@@ -24,17 +24,16 @@ class LibraryRepositoryTest {
     @Autowired
     private BookRepository bookRepository;
     @Autowired
-    private UserBookRepository userBookRepository;
-    @Autowired
     private UserRepository userRepository;
-
-    private final LibraryMapper libraryMapper = LibraryMapper.INSTANCE;
+    @Autowired
+    private UserBookJpaRepository userBookJpaRepository;
+    private final LibraryMapper libraryMapper = LibraryMapper.LIBRARY_MAPPER;
 
     private LibraryRepository libraryRepository;
 
     @BeforeEach
     void setup() {
-        libraryRepository = new LibraryRepository(libraryJpaRepository, libraryMapper, bookRepository, userBookRepository);
+        libraryRepository = new LibraryRepository(libraryJpaRepository, libraryMapper, bookRepository, userBookJpaRepository);
     }
 
     @Test
@@ -188,14 +187,16 @@ class LibraryRepositoryTest {
         userRepository.borrowBook(savedUser1.getId(), book2Id);
         userRepository.borrowBook(savedUser2.getId(), book3Id);
 
-        UserBookEntity userBookEntity = userBookRepository.findById(1).get();
+        UserBookEntity userBookEntity = userBookJpaRepository.findById(1).get();
         userBookEntity.setBorrowingDate(LocalDate.of(2024, 01, 10));
-        userBookRepository.save(userBookEntity);
+        userBookJpaRepository.save(userBookEntity);
 
         //when
         List<Book> bookWithAlertDay = libraryRepository.findBooksByAlertDate(LocalDate.now());
 
         //then
         assertThat(bookWithAlertDay).hasSize(2);
+        assertThat(bookWithAlertDay.get(0).getBorrowingDate()).isEqualTo(LocalDate.now());
+        assertThat(bookWithAlertDay.get(0).getUser().getId()).isEqualTo(savedUser1.getId());
     }
 }

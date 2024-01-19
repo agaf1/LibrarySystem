@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
 @Repository
@@ -20,7 +21,7 @@ public class UserRepository {
     @Transactional
     public User save(User user) {
         UserEntity userEntity = userJpaRepository.save(userMapper.map(user));
-        User user1 = userMapper.map(userEntity);
+        User user1 = userMapper.mapFromEntity(userEntity);
         return user1;
     }
 
@@ -46,17 +47,26 @@ public class UserRepository {
 
     @Transactional
     public boolean returnBook(Integer bookId) {
-//        Optional<Book> book = bookRepository.findById(bookId);
-//        BookEntity bookEntity = null;
-//        if (book.isPresent()) {
-//            bookEntity = userMapper.map(book.get());
-//        }
-//        return userJpaRepository.returnBook(bookEntity);
         Optional<BookEntity> bookEntity = bookRepository.findEntityById(bookId);
         if (bookEntity.isPresent()) {
-            return userJpaRepository.returnBook(bookEntity.get());
+            userJpaRepository.returnBook(bookEntity.get());
+            return true;
         }
         return false;
+    }
+
+    @Transactional
+    public LocalDate extendTimeOfBorrowBook(Integer bookId) {
+        LocalDate newDateOfReturnOfThisBook = LocalDate.now();
+
+        UserBookEntity userBookEntity = userBookJpaRepository.findByBookId(bookId);
+        if (userBookEntity != null) {
+            LocalDate newDateOfBorrowOfThisBook = userBookEntity.getBorrowingDate().plusMonths(1);
+            userBookEntity.setBorrowingDate(newDateOfBorrowOfThisBook);
+            userBookJpaRepository.save(userBookEntity);
+            newDateOfReturnOfThisBook = newDateOfBorrowOfThisBook.plusMonths(1);
+        }
+        return newDateOfReturnOfThisBook;
     }
 
 

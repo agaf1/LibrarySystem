@@ -83,8 +83,6 @@ class UserRepositoryTest {
 
         userRepository.borrowBook(userId, bookId);
 
-        System.out.println("bla");
-
         //when
         boolean result = userRepository.returnBook(bookId);
 
@@ -93,6 +91,49 @@ class UserRepositoryTest {
 
         assertThat(result).isEqualTo(true);
         assertThat(foundUser.get().getBorrowedBooks()).hasSize(0);
+    }
+
+    @Test
+    @Sql("clean-db.sql")
+    public void should_extend_date_of_borrow_book() {
+        //given
+        User user = CreateDataToTests.createUser();
+        User savedUser = userRepository.save(user);
+
+        Library library = CreateDataToTests.createLibraryWithBooks("isbn:1", "isbn:2");
+        Library savedLibrary = libraryRepository.save(library);
+
+        Integer userId = savedUser.getId();
+        Integer bookId = savedLibrary.getBooks().stream().findFirst().get().getId();
+
+        userRepository.borrowBook(userId, bookId);
+
+        //when
+        LocalDate result = userRepository.extendTimeOfBorrowBook(bookId);
+
+        //then
+        LocalDate actualBorrowDate = bookRepository.findById(bookId).get().getBorrowingDate();
+
+        assertThat(result).isEqualTo(actualBorrowDate.plusMonths(1));
+    }
+
+    @Test
+    @Sql("clean-db.sql")
+    public void should_not_extend_date_of_borrow_book_and_return_today_date() {
+        //given
+        User user = CreateDataToTests.createUser();
+        User savedUser = userRepository.save(user);
+
+        Library library = CreateDataToTests.createLibraryWithBooks("isbn:1", "isbn:2");
+        Library savedLibrary = libraryRepository.save(library);
+
+        Integer bookId = 3;
+
+        //when
+        LocalDate result = userRepository.extendTimeOfBorrowBook(bookId);
+
+        //then
+        assertThat(result).isEqualTo(LocalDate.now());
     }
 
 }

@@ -7,43 +7,35 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
 import org.mapstruct.factory.Mappers;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.Optional;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface UserMapper {
 
-    UserMapper INSTANCE = Mappers.getMapper(UserMapper.class);
+    UserMapper USER_MAPPER = Mappers.getMapper(UserMapper.class);
+    LibraryMapper LIBRARY_MAPPER = LibraryMapper.LIBRARY_MAPPER;
 
     default User mapFromEntity(UserEntity userEntity) {
         User user = map(userEntity);
-        user.setBorrowedBooks(setBorrowedBooksToList(userEntity.getBorrowedBooks()));
+        for (UserBookEntity userBookEntity : userEntity.getBorrowedBooks()) {
+            if (userBookEntity.getBook() != null) {
+                Book book = LIBRARY_MAPPER.mapToBookFromEntity(userBookEntity.getBook());
+                book.setLibrary((LIBRARY_MAPPER.mapFromEntity(Optional.of(userBookEntity.getBook().getLibrary()))).get());
+                user.getBorrowedBooks().add(book);
+            }
+        }
+
         return user;
     }
-
-    //    @Mapping(target = "borrowedBooks", ignore = true)
-    UserEntity map(User user);
 
     @Mapping(target = "borrowedBooks", ignore = true)
     User map(UserEntity userEntity);
 
-    //    @Mapping(target = "library", ignore = true)
+    UserEntity map(User user);
+
     BookEntity map(Book book);
 
     @Mapping(target = "library", ignore = true)
     Book map(BookEntity bookEntity);
-
-    private static List<Book> setBorrowedBooksToList(Set<UserBookEntity> borrowedBooksEntity) {
-        List<Book> borrowedBooks = new ArrayList<>();
-        for (UserBookEntity userBookEntity : borrowedBooksEntity) {
-            Book book = UserMapper.INSTANCE.map(userBookEntity.getBook());
-            book.setUser(UserMapper.INSTANCE.map(userBookEntity.getUser()));
-            book.setBorrowingDate(userBookEntity.getBorrowingDate());
-            book.setLibrary(LibraryMapper.INSTANCE.map(userBookEntity.getBook().getLibrary()));
-            borrowedBooks.add(book);
-        }
-        return borrowedBooks;
-    }
 
 }

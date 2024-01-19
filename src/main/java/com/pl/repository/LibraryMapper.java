@@ -2,9 +2,7 @@ package com.pl.repository;
 
 import com.pl.service.domain.Book;
 import com.pl.service.domain.Library;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingConstants;
+import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
 
 import java.util.Optional;
@@ -13,7 +11,8 @@ import java.util.Optional;
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 interface LibraryMapper {
 
-    LibraryMapper INSTANCE = Mappers.getMapper(LibraryMapper.class);
+    LibraryMapper LIBRARY_MAPPER = Mappers.getMapper(LibraryMapper.class);
+    UserMapper USER_MAPPER = UserMapper.USER_MAPPER;
 
     default LibraryEntity mapToEntity(Library library) {
         LibraryEntity libraryEntity = map(library);
@@ -21,6 +20,7 @@ interface LibraryMapper {
         return libraryEntity;
     }
 
+    @IterableMapping(qualifiedByName = "MapBookFromEntityWithOutLibrary")
     default Optional<Library> mapFromEntity(Optional<LibraryEntity> libraryEntity) {
         if (libraryEntity.isEmpty()) {
             return Optional.empty();
@@ -31,6 +31,17 @@ interface LibraryMapper {
     }
 
 
+    default Book mapToBookFromEntity(BookEntity bookEntity) {
+        Book book = map(bookEntity);
+        if (bookEntity.getUserBook() != null) {
+            book.setUser(USER_MAPPER.map(bookEntity.getUserBook().getUser()));
+            book.setBorrowingDate(bookEntity.getUserBook().getBorrowingDate());
+        }
+        return book;
+
+    }
+
+
     LibraryEntity map(Library library);
 
     Library map(LibraryEntity library);
@@ -38,7 +49,9 @@ interface LibraryMapper {
     @Mapping(target = "library", ignore = true)
     BookEntity map(Book book);
 
+
     @Mapping(target = "library", ignore = true)
+    @Named(value = "MapBookFromEntityWithOutLibrary")
     Book map(BookEntity bookEntity);
 
     private static void addLibraryToBook(BookEntity book, LibraryEntity library) {

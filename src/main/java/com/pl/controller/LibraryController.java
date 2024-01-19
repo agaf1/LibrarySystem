@@ -21,8 +21,13 @@ public class LibraryController {
         return libraryToCreate;
     }
 
-    @PostMapping(path = "/library/{libraryId}/addBook/{bookId}")
-    public void addBook(@PathVariable Integer libraryId, @PathVariable Integer bookId) {
-        libraryService.addBook(libraryId, bookId);
+    @PostMapping(path = "/library/{idLibrary}/addBook/{idBook}")
+    public void addBook(@PathVariable Integer idLibrary, @PathVariable Integer idBook) {
+        libraryService.addBook(idLibrary, idBook);
+    }
+
+    @PostMapping(path = "/library/{idLibrary}/deleteBook/{idBook}")
+    public void deleteBook(@PathVariable Integer idLibrary, @PathVariable Integer idBook) {
+        libraryService.deleteBook(idLibrary, idBook);
     }
 }

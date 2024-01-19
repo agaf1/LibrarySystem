@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
@@ -17,8 +18,7 @@ public class LibraryRepository {
     private final LibraryJpaRepository libraryJpaRepository;
     private final LibraryMapper libraryMapper;
     private final BookRepository bookRepository;
-    private final UserBookRepository userBookRepository;
-
+    private final UserBookJpaRepository userBookJpaRepository;
 
     @Transactional
     public Library save(Library library) {
@@ -65,14 +65,10 @@ public class LibraryRepository {
 
     @Transactional
     public List<Book> findBooksByAlertDate(LocalDate alertDate) {
-        List<UserBookEntity> userBookEntities = userBookRepository.findByAlertDate(alertDate);
-        List<Book> booksWithAlertDate = new ArrayList<>();
 
-        for (UserBookEntity userBookEntity : userBookEntities) {
-            Book book = libraryMapper.map(userBookEntity.getBook());
-            booksWithAlertDate.add(book);
-        }
-        return booksWithAlertDate;
+        List<BookEntity> userBookEntities = userBookJpaRepository.findByAlertDate(alertDate);
+
+        return userBookEntities.stream().map(libraryMapper::mapToBookFromEntity).collect(Collectors.toList());
     }
 
 

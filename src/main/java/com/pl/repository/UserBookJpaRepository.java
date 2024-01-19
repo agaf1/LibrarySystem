@@ -10,7 +10,14 @@ import java.util.List;
 @Transactional
 public interface UserBookJpaRepository extends CrudRepository<UserBookEntity, Integer> {
 
-    @Query(value = "select * from user_book ub where ub.borrowing_date=:alertDate",
-            nativeQuery = true)
-    List<UserBookEntity> findByAlertDate(LocalDate alertDate);
+    @Query(
+            "select b from BookEntity b join b.userBook ub where ub.borrowingDate=:alertDate  "
+    )
+    List<BookEntity> findByAlertDate(LocalDate alertDate);
+
+    @Query(
+            value = "select * from user_book where book_id=:bookId  ", nativeQuery = true
+    )
+    UserBookEntity findByBookId(Integer bookId);
+
 }

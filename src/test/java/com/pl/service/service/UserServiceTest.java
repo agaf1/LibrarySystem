@@ -108,6 +108,7 @@ class UserServiceTest {
 
     @Test
     public void should_extend_returning_date_of_borrowing_book() {
+        //given
         Integer userId = 1;
         Integer bookId = 1;
         User user = createUser();
@@ -122,11 +123,53 @@ class UserServiceTest {
         user.setBorrowedBooks(books);
 
         Mockito.when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        Mockito.when(userRepository.extendTimeOfBorrowBook(bookId)).thenReturn(LocalDate.of(2024, 02, 12));
 
+        //when
         LocalDate result = userService.extendTimeOfBorrowBook(userId, bookId);
 
-        Mockito.verify(userRepository, Mockito.atLeastOnce()).save(user);
+        //then
+        Mockito.verify(userRepository, Mockito.atLeastOnce()).extendTimeOfBorrowBook(bookId);
         assertThat(result).isEqualTo(LocalDate.of(2023, 12, 12).plusMonths(2));
+
+    }
+
+    @Test
+    public void should_throws_exception_when_try_extend_return_date_with_wrong_userId() {
+        //given
+        Integer userId = 2;
+        Integer bookId = 1;
+
+        Mockito.when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        //when
+
+        //then
+        assertThatThrownBy(() -> userService.extendTimeOfBorrowBook(userId, bookId))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("User with id " + userId + " not exists");
+    }
+
+    @Test
+    public void should_throws_exception_when_try_extend_return_date_with_wrong_bookId() {
+        //given
+        Integer userId = 1;
+        Integer bookId = 2;
+        User user = createUser();
+        user.setId(1);
+        Book book1 = createBook("1");
+        book1.setId(1);
+        List<Book> books = List.of(book1);
+        user.setBorrowedBooks(books);
+
+        Mockito.when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+
+        //when
+
+        //then
+        assertThatThrownBy(() -> userService.extendTimeOfBorrowBook(userId, bookId))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Book with id " + bookId + " not exists or is borrowed by someone else");
     }
 
     private static User createUser() {

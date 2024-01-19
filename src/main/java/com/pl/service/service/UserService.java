@@ -38,6 +38,7 @@ public class UserService {
         }
     }
 
+
     @Transactional
     public boolean returnBook(Integer bookId) {
         return userRepository.returnBook(bookId);
@@ -46,19 +47,19 @@ public class UserService {
     @Transactional
     public LocalDate extendTimeOfBorrowBook(Integer userId, Integer bookId) {
         LocalDate newDateOfReturnOfThisBook = LocalDate.now();
+
         Optional<User> actualUser = userRepository.findById(userId);
+
         if (actualUser.isPresent()) {
             Optional<Book> actualBook = actualUser.get().getBorrowedBooks()
                     .stream()
                     .filter(b -> b.getId().equals(bookId))
                     .findAny();
             if (actualBook.isPresent()) {
-                LocalDate newBorrowingDate = actualBook.get().getBorrowingDate().plusMonths(1);
-                actualBook.get().setBorrowingDate(newBorrowingDate);
-                newDateOfReturnOfThisBook = newBorrowingDate.plusMonths(1);
-                userRepository.save(actualUser.get());
+                newDateOfReturnOfThisBook = userRepository.extendTimeOfBorrowBook(bookId);
             } else {
-                throw new IllegalArgumentException("Book with id " + bookId + " not exists");
+                throw new IllegalArgumentException(
+                        "Book with id " + bookId + " not exists or is borrowed by someone else");
             }
         } else {
             throw new IllegalArgumentException("User with id " + userId + " not exists");
@@ -66,3 +67,5 @@ public class UserService {
         return newDateOfReturnOfThisBook;
     }
 }
+
+

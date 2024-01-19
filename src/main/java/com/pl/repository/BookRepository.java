@@ -21,14 +21,14 @@ public class BookRepository {
 
     @Transactional
     public Book save(Book book) {
-        return libraryMapper.map(bookJpaRepository.save(libraryMapper.map(book)));
+        return libraryMapper.mapToBookFromEntity(bookJpaRepository.save(libraryMapper.map(book)));
     }
 
     @Transactional(readOnly = true)
     public Optional<Book> findById(Integer bookId) {
         Optional<BookEntity> bookEntityOptional = bookJpaRepository.findById(bookId);
         return bookEntityOptional.isPresent()
-                ? Optional.of(libraryMapper.map(bookEntityOptional.get()))
+                ? Optional.of(libraryMapper.mapToBookFromEntity(bookEntityOptional.get()))
                 : Optional.empty();
 
     }
@@ -42,7 +42,7 @@ public class BookRepository {
     public List<Book> findAllBooks(Integer libraryId) {
         List<Book> books = new ArrayList<>();
         for (BookEntity bookEntity : bookJpaRepository.findAllBook(libraryId)) {
-            Book book = libraryMapper.map(bookEntity);
+            Book book = libraryMapper.mapToBookFromEntity(bookEntity);
             book.setLibrary(libraryMapper.map(bookEntity.getLibrary()));
             books.add(book);
         }
@@ -54,7 +54,7 @@ public class BookRepository {
     public List<Book> findBooksByAuthor(String author) {
         List<Book> books = new ArrayList<>();
         for (BookEntity bookEntity : bookJpaRepository.findBooksByAuthor(author)) {
-            Book book = libraryMapper.map(bookEntity);
+            Book book = libraryMapper.mapToBookFromEntity(bookEntity);
             book.setLibrary(libraryMapper.map(bookEntity.getLibrary()));
             books.add(book);
         }
@@ -65,7 +65,7 @@ public class BookRepository {
     public List<Book> findBooksByTitle(String title) {
         List<Book> books = new ArrayList<>();
         for (BookEntity bookEntity : bookJpaRepository.findBooksByAuthor(title)) {
-            Book book = libraryMapper.map(bookEntity);
+            Book book = libraryMapper.mapToBookFromEntity(bookEntity);
             book.setLibrary(libraryMapper.map(bookEntity.getLibrary()));
             books.add(book);
         }
